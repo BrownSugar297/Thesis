@@ -1,0 +1,136 @@
+✅ FINAL FEATURED DATASET (Best for One Global Regression Model)
+
+
+
+
+
+
+
+Below is exactly what your final dataset should include.
+
+🎯 1. Target Column
+
+Patients (later transformed to log(1+Patients) for modeling)
+
+🟦 2. Core Weather Features
+
+max_temp
+
+min_temp
+
+avg_temp
+
+temp_range
+
+humidity
+
+humidity_norm
+
+rainfall
+
+rain_binary
+
+🟩 3. Time-Series Lag Features
+
+Patients_lag3, Patients_lag7, Patients_lag14
+
+avg_temp_lag3, avg_temp_lag7, avg_temp_lag14
+
+rain_binary_lag3, rain_binary_lag7, rain_binary_lag14
+
+humidity_norm_lag3, humidity_norm_lag7, humidity_norm_lag14
+
+🟧 4. Rolling Window Features
+
+rolling_Patients_7d_mean, rolling_Patients_14d_mean
+
+rolling_avg_temp_7d_mean, rolling_avg_temp_14d_mean
+
+rolling_rain_binary_7d_mean, rolling_rain_binary_14d_mean
+
+rolling_humidity_norm_7d_mean, rolling_humidity_norm_14d_mean
+
+🟨 5. Derived Climate Indices
+
+temp_humidity_index
+
+rain_temp_index
+
+rain_humidity
+
+🟪 6. Division One-Hot Features (because you use ONE model for all 8 divisions)
+
+division_Barishal
+
+division_Chattogram
+
+division_Dhaka
+
+division_Khulna
+
+division_Mymensingh
+
+division_Rajshahi
+
+division_Rangpur
+
+division_Sylhet
+
+🟫 7. Season One-Hot Features (KEEP THESE)
+
+✔ They capture sudden seasonal jumps
+✔ Fourier cannot capture sharp changes in dengue dynamics
+
+season_Winter
+
+season_Pre-Monsoon
+
+season_Monsoon
+
+season_Post-Monsoon
+
+🟦 8. NEW Seasonal Fourier Features (Harmonic Regression)
+
+📌 These capture the smooth cyclic pattern of dengue seasonality.
+
+Add:
+
+fourier_sin = sin(2π * day_of_year / 365.25)
+
+fourier_cos = cos(2π * day_of_year / 365.25)
+
+Optional (for more accuracy): 2nd harmonics
+
+fourier_sin2 = sin(4π * day_of_year / 365.25)
+
+fourier_cos2 = cos(4π * day_of_year / 365.25)
+
+But 1st harmonic is enough.
+
+❌ 9. Columns to DROP
+
+risk_label
+
+risk_label_text
+(because this is regression, not classification)
+
+
+
+✅ Should log(1 + Patients) be added as a column in the final featured dataset?
+
+NO — do NOT add it as a column in the dataset.
+You apply log(1+y) only during modeling, not as a permanent dataset field.
+
+Here’s why:
+
+🔥 Why you should NOT store log(1+y) inside the feature dataset
+✔ 1. It’s not a feature — it’s a target transformation
+
+The transformation is applied to y (target), not X (features).
+
+✔ 2. It causes data leakage
+
+If you store transformed target inside the same dataset,
+future steps can accidentally leak target info.
+
+✔ 3. Proper ML pipelines always generate y_log inside model training code, not inside the dataset.

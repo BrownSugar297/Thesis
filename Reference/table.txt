@@ -1,0 +1,5 @@
+Recommended Strategy (IEEE-Friendly)
+
+Main Table: Keep MAE, RMSE, R², MAPE (Non-Zero), Training Time → reviewers see both absolute and relative errors at a glance.
+
+Supplementary Table: Keep RMSLE (log-space metric) and optionally repeat MAPE (Non-Zero) if you want to show detailed model comparison.

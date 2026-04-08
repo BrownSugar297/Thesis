@@ -1,0 +1,21 @@
+What to Include in Your Paper
+Here are the key points to cover, ensuring you use the correct terminology to demonstrate the robustness of your approach:
+
+1. Data Splitting Strategy
+State clearly that you used a chronological time-series split to maintain the temporal sequence, ensuring that the training set precedes the test set.
+
+Key Phrase: "The data was split chronologically, using 2022–2024 for training and 2025 for testing, to simulate real-world prospective forecasting and prevent data snooping."
+
+2. Feature Engineering Safety (Mitigating Look-Ahead Bias)
+Explain the specific techniques used to ensure your lagged and rolling features do not incorporate future information (look-ahead bias). This is where the technical detail matters.
+
+Lagged Features: State that all lagged features (e.g., Patients_lag7) are inherently safe as they only reference past observations.
+
+Rolling Aggregations: Explain the correct implementation.
+
+Key Phrase: "All rolling mean features (e.g., rolling_Patients_7d_mean) were calculated using a trailing, non-inclusive window. We ensured this was implemented using the .shift(1).rolling(window) function to prevent the statistic for day T from incorporating any data from day T or the future."
+
+3. Data Scaling Procedure
+This is essential, as incorrect scaling is a very common leakage mistake.
+
+Key Phrase: "To prevent data leakage during normalization, the StandardScaler (or MinMaxScaler) was fitted exclusively on the training set (2022–2024). These parameters (μ and σ) were then applied to transform both the training and test sets, ensuring the test set's distribution did not influence the training phase."

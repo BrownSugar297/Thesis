@@ -1,0 +1,96 @@
+📘 REFERENCE–TASK MAPPING (Exactly Which Reference is Used for What Task)
+A. DATA SOURCES
+Task 1: Dengue Patient Count Collection
+
+✔ Source: DGHS official daily press releases
+
+Reference Used:
+[1] Directorate General of Health Services (DGHS), “HEOC Dengue Dashboard,” HEOC, Bangladesh, 2025.
+
+Why: This is the official government source for daily dengue case counts.
+
+Task 2: Daily Weather Data Collection
+
+✔ Temperature, humidity, rainfall per division
+✔ Collected using Python + API
+
+Reference Used:
+[2] Open-Meteo, “Open-Meteo Climate Archive API,” 2025.
+
+Why:
+Provides daily climate data using latitude–longitude with no API key, perfect for reproducible research.
+
+Task 3: Scientific Source of Weather Data (ERA5 Reanalysis)
+
+✔ For scientific validation
+✔ Open-Meteo is based on ERA5 climate system
+
+References Used:
+[3] Copernicus Climate Change Service (C3S), “ERA5: Reanalysis of atmospheric climate,” 2025.
+[4] C3S, “ERA5 monthly averaged data on single levels…,” 2025.
+
+Why:
+To justify that your weather data comes from a highly reputable global dataset (ERA5).
+
+B. FEATURE ENGINEERING REFERENCES
+B1. Target Variable Transformation (log(1 + cases))
+Task 4: Stabilizing variance & handling zero-inflation
+
+✔ Using y_log = log(1 + Patients)
+
+Reference Used:
+[5] Bosse et al. (2023), PLOS Computational Biology.
+
+Why:
+This is the exact reference that justifies transforming epidemiological count data for regression/forecasting.
+
+B2. Temporal Features (Lags & Rolling Windows)
+Task 5: Lag features
+
+✔ Patients_lag3
+✔ Patients_lag7
+✔ Patients_lag14
+
+Task 6: Rolling window features
+
+✔ rolling_7d_mean, rolling_14d_mean
+
+Reference Used:
+[6] Suwanmaneepong et al. (2020), PLOS Neglected Tropical Diseases.
+
+Why:
+This paper shows that past dengue cases (lags) are the strongest predictors, validating your temporal features.
+
+B3. Seasonality Encoding (Fourier Terms)
+Task 7: Adding yearly seasonality patterns
+
+✔ sin(2πt/365), cos(2πt/365)
+
+Reference Used:
+[7] Hasan et al. (2023), Scientific Reports.
+
+Why:
+This paper proves Fourier seasonal features improve infectious disease forecasting.
+
+B4. Interaction Features (Climate–Biology Effects)
+Task 8: Composite weather indices
+
+✔ Temperature–Humidity Index
+✔ Rain–Temperature Index
+
+Reference Used:
+[8] Kakarla et al. (2022), International Journal of Biometeorology.
+
+Why:
+Demonstrates that nonlinear climate interactions significantly affect dengue transmission.
+
+B5. Spatial Features (Division Encoding)
+Task 9: One-hot or embedding per division
+
+✔ division_Dhaka, division_Sylhet, etc.
+
+Reference Used:
+[6] Suwanmaneepong et al. (2020).
+
+Why:
+The same paper justifies spatial modeling at sub-national levels (district, division).

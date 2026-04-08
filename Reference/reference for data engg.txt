@@ -1,0 +1,92 @@
+# THESIS FEATURE ENGINEERING REFERENCES FILE (IEEE FORMAT)
+
+## I. TARGET VARIABLE TRANSFORMATION (CRITICAL)
+
+### Method:
+Target Variable Transformation: y_log = log(1 + Patients).
+
+### Justification:
+Addresses zero-inflation, right-skewness, and heteroscedasticity in count data, providing a variance-stabilizing transformation suitable for regression models.
+
+### Primary Citation:
+1.  Bosse, N. I., Abbott, S., et al. (2023). Scoring epidemiological forecasts on transformed scales. *PLOS Computational Biology*, 19(8), e1011393. (DOI: 10.1371/journal.pcbi.1011393)
+
+## II. TEMPORAL FEATURES (TIME-SERIES DEPENDENCIES)
+
+### Methods:
+1.  **Autoregressive Lags:** (e.g., Patients_lag3, Patients_lag7, Patients_lag14)
+2.  **Rolling Window Statistics:** (e.g., rolling_Patients_7d_mean, rolling_avg_temp_14d_mean)
+
+### Justification:
+Captures the **Autocorrelation** inherent in infectious disease spread (cases depend on past cases due to incubation and reporting delays) and models the underlying **Epidemic Trend** by smoothing noise.
+
+### Primary Citation:
+2.  Suwanmaneepong, S., et al. (2020). Machine learning and dengue forecasting: Comparing random forests and artificial neural networks for predicting dengue burden at national and sub-national scales in Colombia. *PLOS Neglected Tropical Diseases*, 14(9), e0008518.
+    * *Note: This paper explicitly shows lagged dengue variables as the most important predictors in their ML models.*
+
+## III. SEASONALITY & CLIMATE CYCLES
+
+### Method:
+**Fourier Series Terms:** (e.g., fourier_sin, fourier_cos) derived from the Day-of-Year.
+
+### Justification:
+Mathematically encodes the **Periodic Seasonality** of dengue, driven by the strong annual climate cycle (monsoon/post-monsoon) in Bangladesh, which linear models and tree models can struggle to capture effectively without explicit features.
+
+### Primary Citation:
+3.  Hasan, M. R., et al. (2023). A high-performance forecasting model for COVID-19 cases in Bangladesh using seasonal features and ensemble learning. *Scientific Reports*, 13, 21544. (DOI: 10.1038/s41598-023-48762-2)
+    * *Note: Use a time-series paper that validates Fourier terms as robust seasonal features.*
+
+## IV. FEATURE INTERACTIONS & BIOMETEOROLOGY
+
+### Method:
+**Composite Indices:** (e.g., temp_humidity_index, rain_temp_index)
+
+### Justification:
+Models the **Non-linear and Synergistic Biological Effects** of climate variables. Mosquito life cycles and viral replication are not driven by a single variable, but by specific combinations (e.g., a critical window of high temperature AND high humidity).
+
+### Primary Citation:
+4.  Kakarla, G., et al. (2022). Weather integrated multiple machine learning models for prediction of dengue prevalence in India. *International Journal of Biometeorology*, 67, 285–297. (DOI: 10.1007/s00484-021-02220-4)
+    * *Note: This type of reference is required to justify combining simple climate features into a biologically-driven index.*
+
+## V. SPATIAL HETEROGENEITY
+
+### Method:
+**Spatio-Temporal Encoding:** Division-specific one-hot variables (e.g., division_Dhaka, division_Sylhet).
+
+### Justification:
+Allows a single **Global Model** (trained on all data) to learn a unique, division-specific baseline risk level, capturing unmodeled spatial factors like population density, sanitation, and healthcare infrastructure variations across Bangladesh.
+
+### Primary Citation:
+5.  Suwanmaneepong, S., et al. (2020). Machine learning and dengue forecasting... *PLOS Neglected Tropical Diseases*, 14(9), e0008518.
+    * *Note: The same paper (as #2) is useful here as it discusses modeling dengue at the sub-national scale.*
+
+## VI. EVALUATION METHODOLOGY
+
+### Method:
+**Rolling-Origin Cross-Validation** (Time-Series Split).
+
+### Justification:
+Ensures **Methodological Rigor** by simulating real-world forecasting (training on historical data and predicting future, unseen data) and prevents data leakage, which is crucial for time-series validation.
+
+### Primary Citation:
+6.  Hyndman, R. J., & Athanasopoulos, G. (2021). *Forecasting: Principles and Practice* (3rd ed.). OTexts.
+    * *Note: Citing this prominent text or any major paper on time-series validation is standard practice.*
+    
+    
+    # THESIS METHODOLOGY JUSTIFICATION: TARGET TRANSFORMATION
+
+## I. TRANSFORMATION METHOD
+* **Step:** Target Variable Transformation
+* **Method:** $\mathbf{y_{log} = \log(1+Patients)}$
+
+## II. ACADEMIC JUSTIFICATION
+* **Principle:** The transformation is essential for satisfying the assumptions of Linear (Ridge/Lasso) and Tree-based (XGBoost/EBM) regression models.
+* **Reasoning:** Dengue case counts are highly **right-skewed** and contain many **zeros** (zero-inflation), 
+leading to **heteroscedasticity** (non-constant variance) in the residuals. The $\log(1+x)$ method is a **variance-stabilizing transformation** 
+that provides a metric reflecting the **epidemic growth rate**, making the data suitable for modeling.
+
+## III. REQUIRED ACADEMIC CITATION (IEEE Format)
+
+* **Citation:** Bosse, N. I., Abbott, S., et al. (2023). Scoring epidemiological forecasts on transformed scales. *PLOS Computational Biology*, 19(8), e1011393. (DOI: 10.1371/journal.pcbi.1011393)
+    
+    

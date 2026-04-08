@@ -1,0 +1,97 @@
+Section: Standardized Inference and Transformation Pipeline
+
+To maintain scientific integrity and ensure that the forecasting errors are interpretable for public health officials, a rigorous inference sequence is followed. Because the target variable is transformed using a logarithmic scale—y 
+log
+​
+ =log(1+Patients)—during the training phase to stabilize variance and manage zero-inflation, the evaluation on the unseen 2025 test set must follow a specific chronological order of operations:
+
+Inference in Log-Space: The model first processes the features from the scaled test set (X 
+test_scaled
+​
+ ) and outputs a raw prediction in the logarithmic domain (y 
+pred,log
+​
+ ).
+
+Immediate Inverse Transformation: Before any error calculations occur, the log-space forecast is converted back into the original patient count scale. This is achieved by applying the exponential minus one function: y 
+pred,raw
+​
+ =exp(y 
+pred,log
+​
+ )−1. This step is crucial for reverting the non-linear transformation applied during preprocessing.
+
+Physical Metric Comparison: The back-transformed forecast (y 
+pred,raw
+​
+ ) is then compared directly against the actual ground-truth patient counts (y 
+test_original_patients
+​
+ ). From this comparison, the final physical metrics—MAE, RMSE, R 
+2
+ , and MAPE (Non-Zero %)—are derived.
+
+This sequence ensures that all reported errors are in actual units (number of patients), providing a clear and meaningful representation of the model's accuracy in a real-world epidemiological context.
+
+Testing Inputs and Statistical Assessment
+Section: Data Requirements for Model Testing
+
+During the testing phase, the evaluation framework utilizes three distinct data components to validate model performance:
+
+Model Features (X 
+test_scaled
+​
+ ): The engineered meteorological and temporal features used to generate the forecasts.
+
+Original Patient Counts (y 
+test_original_patients
+​
+ ): The primary benchmark used to calculate all accuracy metrics in the original scale. This ensures that the R 
+2
+  value reflects the proportion of variance explained in actual dengue cases.
+
+Log-Transformed Ground Truth (y 
+test,log
+​
+ ): This is used exclusively for the calculation of RMSLE (Root Mean Squared Logarithmic Error). By comparing the model’s initial y 
+pred,log
+​
+  directly with the y 
+test,log
+​
+ , we can assess the statistical performance of the model in the log-domain, which is more robust to the extreme outliers and skewness typical of infectious disease outbreaks.
+
+Summary of Evaluation Logic: All six models (LightGBM, CatBoost, XGBoost, Random Forest, SVR, and Ridge) are evaluated under this unified protocol. By calculating the final performance metrics in the raw patient count scale while utilizing the log-scale for optimization (RMSLE), the methodology bridges the gap between statistical robustness and practical clinical utility.
+
+Key Metrics Summary for Final Results Table
+Metric	Calculation Basis	Purpose
+MAE & RMSE	y 
+pred,raw
+​
+  vs. y 
+test_original_patients
+​
+ 	Measures error in real-world patient units.
+R 
+2
+ 	y 
+pred,raw
+​
+  vs. y 
+test_original_patients
+​
+ 	Quantifies variance explained in actual counts.
+MAPE (Non-Zero)	y 
+pred,raw
+​
+  vs. y 
+test_original_patients
+​
+ 	Measures relative error for active outbreak days.
+RMSLE	y 
+pred,log
+​
+  vs. y 
+test,log
+​
+ 	Assesses log-scale stability and handles zero-inflation.

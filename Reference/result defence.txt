@@ -1,0 +1,13 @@
+Metric,Value
+Standard (Fisher) Kurtosis (as KPR),≈44.71
+Peak Ratio (Crest Factor) (as KPR),≈10.55
+Coefficient of Variation (CV),≈3.07
+
+Characteristic,Value
+Excess Zero Proportion,41.91%
+Overdispersion Ratio (Variance/Mean),≈471.79
+Data Type,Count Data
+Distribution Shape,Highly Leptokurtic (Kurtosis ≈44.71)
+
+
+The dataset exhibits significant $\mathbf{41.91\%}$ Zero-Inflation (requiring MAPE Non-Zero % and potentially ZI models); extreme $\mathbf{471.79}$ Overdispersion (defending the use of non-parametric models); a highly Leptokurtic distribution ($\mathbf{44.71}$ Kurtosis, justifying RMSLE); and strong Non-Linearity (inferred from the performance gap between LightGBM $\text{R}^2 \approx 0.899$ and Ridge $\text{R}^2 \approx 0.640$).

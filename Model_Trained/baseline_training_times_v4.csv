@@ -1,0 +1,7 @@
+,Training_Time_s
+LightGBM_Default,0.2007
+RandomForest_Default,3.4585
+XGBoost_Default,2.2426
+CatBoost_Default,9.2229
+SVR_Default,4.0174
+Ridge_Default,0.0404

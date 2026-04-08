@@ -1,0 +1,12 @@
+# Ignore the virtual environment
+Thesis_env/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore environment variables
+.env
+
+catboost_info/
+

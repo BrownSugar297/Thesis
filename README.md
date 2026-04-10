@@ -529,16 +529,6 @@ jupyter
 
 ---
 
-## 🙏 Acknowledgements
-
-Sincere gratitude to:
-
-- **Prof. Dr. Md. Abdul Masud** — Professor, Department of CSIT, PSTU, for his invaluable supervision and guidance throughout this research
-- **Directorate General of Health Services (DGHS), Bangladesh** — for providing the official dengue surveillance data
-- **Open-Meteo** and **ERA5 / ECMWF** — for open-access, high-resolution meteorological datasets that made this study possible
-
----
-
 <div align="center">
 
 <br/>

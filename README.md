@@ -1,23 +1,13 @@
 <div align="center">
 
-<br/>
-
-```
-██████╗ ███████╗███╗   ██╗ ██████╗ ██╗   ██╗███████╗
-██╔══██╗██╔════╝████╗  ██║██╔════╝ ██║   ██║██╔════╝
-██║  ██║█████╗  ██╔██╗ ██║██║  ███╗██║   ██║█████╗  
-██║  ██║██╔══╝  ██║╚██╗██║██║   ██║██║   ██║██╔══╝  
-██████╔╝███████╗██║ ╚████║╚██████╔╝╚██████╔╝███████╗
-╚═════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚══════╝
-        F O R E C A S T I N G · B A N G L A D E S H
-```
-
 # Explainable Ensemble Models for Spatio-Temporal Dengue Outbreak Forecasting in Bangladesh
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![LightGBM](https://img.shields.io/badge/LightGBM-Best_Model-2ECC71?style=for-the-badge)](https://lightgbm.readthedocs.io)
+[![XGBoost](https://img.shields.io/badge/XGBoost-Ensemble-FF6B35?style=for-the-badge)](https://xgboost.readthedocs.io)
+[![CatBoost](https://img.shields.io/badge/CatBoost-Ensemble-FFCC00?style=for-the-badge&logoColor=black)](https://catboost.ai)
 [![SHAP](https://img.shields.io/badge/SHAP-Explainability-E74C3C?style=for-the-badge)](https://shap.readthedocs.io)
-[![License](https://img.shields.io/badge/License-Academic-F39C12?style=for-the-badge)](#)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-HPO-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white)](https://scikit-learn.org)
 [![Thesis](https://img.shields.io/badge/B.Sc._Thesis-PSTU_2026-8E44AD?style=for-the-badge)](#)
 
 <br/>
@@ -43,8 +33,10 @@
 
 - [Overview](#-overview)
 - [Key Contributions](#-key-contributions)
+- [Tech Stack](#-tech-stack)
 - [Dataset](#-dataset)
 - [Methodology](#-methodology)
+- [Hyperparameter Optimization](#-hyperparameter-optimization)
 - [Results](#-results)
 - [Explainability (SHAP)](#-explainability-shap)
 - [Repository Structure](#-repository-structure)
@@ -53,7 +45,6 @@
 - [Key Outputs](#-key-outputs)
 - [Limitations](#-limitations)
 - [Future Work](#-future-work)
-- [Citation](#-citation)
 - [Acknowledgements](#-acknowledgements)
 
 ---
@@ -66,7 +57,7 @@ This research presents a fully integrated, **leakage-aware machine learning pipe
 
 - Fuses **daily epidemiological surveillance** (DGHS) with **high-resolution meteorological reanalysis** (Open-Meteo & ERA5)
 - Applies **advanced feature engineering** — autoregressive lags, rolling statistics, Fourier seasonality, and composite climate indices
-- Benchmarks **6 regression models** under strict chronological validation
+- Benchmarks **6 regression models** under strict chronological validation with rigorous hyperparameter optimization
 - Delivers **SHAP-based explainability** for transparent, actionable public health insights
 
 The framework is designed as a **decision-support tool** for dengue early warning and healthcare resource allocation across Bangladesh's 8 administrative divisions.
@@ -90,6 +81,24 @@ The framework is designed as a **decision-support tool** for dengue early warnin
 │                              aligned with epidemiology          │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Tools & Libraries |
+|-------|-------------------|
+| **Language** | Python 3.9+ |
+| **Data Processing** | pandas, numpy |
+| **Machine Learning** | scikit-learn, LightGBM, XGBoost, CatBoost |
+| **Hyperparameter Optimization** | `RandomizedSearchCV` (scikit-learn), early stopping callbacks |
+| **Model Tuning** | 5-fold time-series CV · 100-iteration random search · RMSLE objective |
+| **Explainability** | SHAP (SHapley Additive exPlanations) |
+| **Geospatial** | geopandas |
+| **Visualization** | matplotlib, seaborn |
+| **Weather Data** | Open-Meteo Archive API, ERA5 / ECMWF (Climate Data Store) |
+| **Notebooks** | Jupyter |
+| **Model Serialization** | pickle (`.pkl`), JSON (`.json`) |
 
 ---
 
@@ -125,7 +134,7 @@ Transformation      :  log(1 + y) for training; exp(ŷ) − 1 for evaluation
 | 🟢 Rangpur | 5.79 | 88 | 14.05 |
 | 🟢 Sylhet | 1.53 | 30 | 3.97 |
 
-> **Note:** The dataset contains a short gap in July 2024 due to a nationwide network outage. Missing values were imputed using division-wise monthly averages to preserve regional variation without introducing look-ahead bias.
+> **Note:** A short data gap in July 2024 arose from a nationwide network outage that interrupted official DGHS reporting. Missing values were imputed using division-wise monthly averages to preserve regional variation without introducing look-ahead bias.
 
 ---
 
@@ -198,12 +207,88 @@ $$\text{RTI} = \text{Rainfall} \times T$$
 | CatBoost | Gradient boosting |
 | **LightGBM ⭐** | **Gradient boosting (best)** |
 
-### 4. Hyperparameter Optimization
+---
 
-- `RandomizedSearchCV` · **100 iterations** · **5-fold time-series CV**
-- **Optimization objective:** RMSLE (log domain)
-- **Early stopping:** 50–100 rounds patience on a held-out 10% validation split
-- Final models re-fitted on the full training set before test evaluation
+## 🔧 Hyperparameter Optimization
+
+Hyperparameter optimization (HPO) was conducted using **`RandomizedSearchCV`** from scikit-learn with time-series–aware cross-validation, ensuring no future data ever leaked into training folds during the search.
+
+### Search Strategy
+
+| Setting | Value |
+|---------|-------|
+| Search method | `RandomizedSearchCV` |
+| Number of iterations | 100 per model |
+| Cross-validation | 5-fold time-series CV (chronological) |
+| Optimization metric | RMSLE (log-domain) |
+| Validation split | 10% held-out from training end |
+| Early stopping (boosting) | 50–100 rounds patience |
+| Final refit | Full training set after best params found |
+
+### Search Spaces
+
+**LightGBM**
+```python
+{
+    "n_estimators":      [500, 1000, 1500, 2000],
+    "learning_rate":     [0.005, 0.01, 0.02, 0.05],
+    "num_leaves":        [31, 63, 127, 255],
+    "max_depth":         [-1, 6, 8, 10, 12],
+    "min_child_samples": [10, 20, 30, 50],
+    "subsample":         [0.6, 0.7, 0.8, 0.9, 1.0],
+    "colsample_bytree":  [0.6, 0.7, 0.8, 0.9, 1.0],
+    "reg_alpha":         [0, 0.01, 0.1, 0.5, 1.0],
+    "reg_lambda":        [0, 0.01, 0.1, 0.5, 1.0],
+}
+```
+
+**XGBoost**
+```python
+{
+    "n_estimators":      [500, 1000, 1500, 2000],
+    "learning_rate":     [0.005, 0.01, 0.02, 0.05],
+    "max_depth":         [3, 5, 6, 8, 10],
+    "min_child_weight":  [1, 3, 5, 10],
+    "subsample":         [0.6, 0.7, 0.8, 0.9],
+    "colsample_bytree":  [0.6, 0.7, 0.8, 0.9],
+    "gamma":             [0, 0.1, 0.3, 0.5],
+    "reg_alpha":         [0, 0.01, 0.1, 1.0],
+    "reg_lambda":        [0.5, 1.0, 2.0, 5.0],
+}
+```
+
+**CatBoost**
+```python
+{
+    "iterations":           [500, 1000, 1500, 2000],
+    "learning_rate":        [0.005, 0.01, 0.03, 0.05],
+    "depth":                [4, 6, 8, 10],
+    "l2_leaf_reg":          [1, 3, 5, 10, 20],
+    "bagging_temperature":  [0, 0.5, 1.0, 2.0],
+    "random_strength":      [0, 0.5, 1.0, 2.0],
+    "border_count":         [32, 64, 128, 254],
+}
+```
+
+**Random Forest**
+```python
+{
+    "n_estimators":      [200, 500, 800, 1000],
+    "max_depth":         [None, 10, 20, 30],
+    "min_samples_split": [2, 5, 10],
+    "min_samples_leaf":  [1, 2, 4],
+    "max_features":      ["sqrt", "log2", 0.5, 0.7],
+    "bootstrap":         [True, False],
+}
+```
+
+### Early Stopping
+
+For all gradient-boosting models, a 10% held-out validation slice (chronologically last portion of the training set) was used as the early-stopping monitor. Training was halted if the validation RMSLE did not improve for **50 consecutive rounds** (LightGBM / XGBoost) or **100 rounds** (CatBoost), preventing overfitting to the training distribution.
+
+### Post-HPO Refit
+
+After identifying the best hyperparameter configuration for each model, the model was **re-trained from scratch on the entire training period** (Jan 2022 – Dec 2024) using those parameters — without the held-out validation slice — to maximally leverage available data before evaluation on the unseen 2025 test set.
 
 ---
 
@@ -231,7 +316,7 @@ $$\text{RTI} = \text{Rainfall} \times T$$
 | Ridge Regression | 0.637 | 17.275 | 38.322 | 1.097 |
 | SVR | 0.383 | 18.702 | 49.997 | 0.910 |
 
-> **Key finding:** Hyperparameter tuning substantially improves gradient-boosting models. Ridge and SVR show limited or negative gains, confirming their unsuitability for this high-dimensional, non-linear problem. LightGBM achieves the highest R² and the lowest MAE, RMSE and RMSLE across all candidates.
+> **Key finding:** Hyperparameter tuning substantially improves all gradient-boosting models. Ridge and SVR show limited or negative gains, confirming their unsuitability for this high-dimensional, non-linear problem. LightGBM achieves the highest R² and the lowest MAE, RMSE, and RMSLE across all candidates.
 
 ### Temporal Forecasting Performance (2025 Test Period)
 
@@ -444,25 +529,6 @@ jupyter
 
 ---
 
-## 📄 Citation
-
-If you use this code, dataset, or methodology in your research, please cite:
-
-```bibtex
-@thesis{ashik_sakib_2026_dengue,
-  title     = {Explainable Ensemble Models for Spatio-Temporal Dengue Outbreak
-               Forecasting in Bangladesh},
-  author    = {Ashikur Rahman Ashik and Md. Sadman Sakib},
-  school    = {Patuakhali Science and Technology University},
-  year      = {2026},
-  type      = {B.Sc. Thesis},
-  address   = {Patuakhali, Bangladesh},
-  department= {Computer Science and Engineering}
-}
-```
-
----
-
 ## 🙏 Acknowledgements
 
 Sincere gratitude to:
@@ -485,7 +551,7 @@ Patuakhali, Bangladesh · 2026
 
 ---
 
-<sub>Developed by <strong>Ashikur Rahman Ashik</strong> · Student ID: 2002026 · PSTU</sub>
+<sub>Developed by <strong>Ashikur Rahman Ashik</strong> · PSTU</sub>
 
 <br/>
 

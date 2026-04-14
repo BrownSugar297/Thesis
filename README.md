@@ -287,18 +287,28 @@ python src/evaluation/explainability.py
 
 ---
 
-## 📊 Results
+### Baseline Model Performance
 
-### Baseline vs. Tuned Performance
+| Model | R² | MAE | RMSE | RMSLE | MAPE (Non-Zero %) | Train Time (s) |
+|-------|:--:|:---:|:----:|:-----:|:-----------------:|:--------------:|
+| **LightGBM** | **0.899** | **9.149** | **20.236** | **0.773** | 59.77% | 0.20 |
+| Random Forest | 0.897 | 9.174 | 20.476 | 0.779 | 57.95% | 3.46 |
+| CatBoost | 0.872 | 9.853 | 22.739 | 0.778 | 60.94% | 9.22 |
+| XGBoost | 0.849 | 10.756 | 24.709 | 0.813 | 62.61% | 2.24 |
+| SVR | 0.690 | 14.389 | 35.479 | 0.957 | 64.83% | 4.02 |
+| Ridge Regression | 0.640 | 17.206 | 38.204 | 1.098 | 66.04% | 0.04 |
 
-| Model | R² | MAE | RMSE | RMSLE |
-|-------|:--:|:---:|:----:|:-----:|
-| **LightGBM ⭐ (tuned)** | **0.900** | **8.927** | **20.094** | **0.765** |
-| CatBoost (tuned) | 0.898 | 9.026 | 20.310 | 0.768 |
-| XGBoost (tuned) | 0.891 | 9.366 | 20.998 | 0.772 |
-| Random Forest (tuned) | 0.888 | 8.984 | 21.234 | 0.769 |
-| Ridge Regression | 0.637 | 17.275 | 38.322 | 1.097 |
-| SVR | 0.383 | 18.702 | 49.997 | 0.910 |
+### Tuned Model Performance
+
+| Model | R² | MAE | RMSE | RMSLE | MAPE (Non-Zero %) | Train Time (s) |
+|-------|:--:|:---:|:----:|:-----:|:-----------------:|:--------------:|
+| **LightGBM ⭐** | **0.900** | **8.927** | **20.095** | **0.766** | 57.31% | 3.59 |
+| CatBoost | 0.898 | 9.026 | 20.310 | 0.769 | 57.27% | 5.80 |
+| XGBoost | 0.891 | 9.367 | 20.998 | 0.772 | 58.71% | 3.61 |
+| Random Forest | 0.889 | 8.985 | 21.234 | 0.769 | 56.97% | 9.68 |
+| Ridge Regression | 0.638 | 17.276 | 38.323 | 1.098 | 66.04% | 0.03 |
+| SVR | 0.383 | 18.702 | 49.998 | 0.911 | 80.72% | 48.52 |
+
 
 **Key Finding:** Hyperparameter tuning substantially improves all gradient-boosting models. Ridge and SVR show limited or negative gains, confirming their unsuitability for this high-dimensional, non-linear problem. LightGBM achieves the best score across all four metrics.
 

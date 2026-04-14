@@ -71,37 +71,37 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ## 🧠 Architecture & Workflow
 
-### Visual Overview
-
 ```mermaid
-flowchart TD
-    A[("📡 Data Sources\nDGHS · Open-Meteo · ERA5")] --> B["🧹 Preprocessing\ncleaning.py · transforms.py"]
-    B --> C["⚙️ Feature Engineering\nLags · Rolling Stats · Fourier · Climate Indices"]
-    C --> D["📅 Chronological Split\nTrain: Jan 2022 – Dec 2024\nTest: Jan 2025 – Oct 2025"]
+flowchart LR
+    A(["🗄️ Data Acquisition\nand Initial Cleaning"])
+    --> B["🔧 Feature Engineering\nand Leakage Control"]
+    --> C{"⏱️ Chronological\nTime Series Split"}
 
-    D --> E["📏 StandardScaler\nFit on TRAIN only → apply to TEST"]
-    E --> F["🔁 RandomizedSearchCV\n100 iter · 5-fold Time-Series CV\nObjective: RMSLE"]
+    C -->|"Jan 2022 – Dec 2024"| D["🗂️ Training Set"]
+    C -->|"Jan 2025 – Oct 2025"| E["📄 Test Set"]
 
-    F --> G1["🌲 Ridge / RF / SVR\nBaseline Models"]
-    F --> G2["⚡ XGBoost · CatBoost · LightGBM\nGradient Boosting + Early Stopping"]
+    subgraph DATA_SPLIT ["📦 DATA SPLIT"]
+        D
+        E
+    end
 
-    G1 --> H["📊 Evaluation\nMAE · RMSE · RMSLE · R²"]
-    G2 --> H
+    subgraph MODEL_TRAINING ["⚙️ MODEL TRAINING"]
+        F["🧱 Baseline Model\nTraining"]
+        --> G["🎛️ Hyperparameter\nOptimization"]
+    end
 
-    H --> I{{"🏆 Best Model\nLightGBM Tuned\nR²=0.900"}}
+    D --> F
+    G --> H["🏆 Best Optimized\nModel"]
+    E --> H
+    H --> I(["📊 Evaluation"])
+` ``
 
-    I --> J["🔍 SHAP Analysis\nGlobal + Local Explanations"]
-    I --> K["💾 Model Artifacts\nlightgbm_tuned.pkl"]
+A few things to note:
 
-    J --> L["📈 Outputs\nFigures · Reports · Forecasts"]
-    K --> L
-
-    style A fill:#e8f4fd,stroke:#2980b9,color:#1a1a2e
-    style D fill:#fef9c3,stroke:#f39c12,color:#1a1a2e
-    style E fill:#fff4e6,stroke:#e67e22,color:#1a1a2e
-    style I fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
-    style J fill:#fdf2f8,stroke:#8e44ad,color:#1a1a2e
-    style L fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
+- GitHub renders Mermaid natively in `.md` files as of 2022, so no extra plugin is needed.
+- The `subgraph` blocks recreate the dashed/colored bounding boxes from the PNG (DATA SPLIT and MODEL TRAINING).
+- The diamond shape `{...}` is used for the decision/split node, and the rounded stadium shape `(["..."])` is used for the oval nodes (Data Acquisition, Evaluation).
+- GitHub doesn't support custom colors in Mermaid diagrams, so the visual grouping is handled via the subgraph labels instead.
 ```
 
 ### Step-by-Step Pipeline

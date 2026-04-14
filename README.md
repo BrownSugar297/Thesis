@@ -69,31 +69,39 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ---
 
+## 🧠 Architecture & Workflow
+
+### Visual Overview
+
 ```mermaid
-flowchart LR
-    ...
-    A(["Data Acquisition and Initial Cleaning"])
-    --> B["Feature Engineering and Leakage Control"]
-    --> C{"Chronological Time Series Split"}
+flowchart TD
+    A[("📡 Data Sources\nDGHS · Open-Meteo · ERA5")] --> B["🧹 Preprocessing\ncleaning.py · transforms.py"]
+    B --> C["⚙️ Feature Engineering\nLags · Rolling Stats · Fourier · Climate Indices"]
+    C --> D["📅 Chronological Split\nTrain: Jan 2022 – Dec 2024\nTest: Jan 2025 – Oct 2025"]
 
-    C -->|"Jan 2022 to Dec 2024"| D["Training Set"]
-    C -->|"Jan 2025 to Oct 2025"| E["Test Set"]
+    D --> E["📏 StandardScaler\nFit on TRAIN only → apply to TEST"]
+    E --> F["🔁 RandomizedSearchCV\n100 iter · 5-fold Time-Series CV\nObjective: RMSLE"]
 
-    D --> F
-    E --> H
+    F --> G1["🌲 Ridge / RF / SVR\nBaseline Models"]
+    F --> G2["⚡ XGBoost · CatBoost · LightGBM\nGradient Boosting + Early Stopping"]
 
-    subgraph DATA_SPLIT ["DATA SPLIT"]
-        D
-        E
-    end
+    G1 --> H["📊 Evaluation\nMAE · RMSE · RMSLE · R²"]
+    G2 --> H
 
-    subgraph MODEL_TRAINING ["MODEL TRAINING"]
-        F["Baseline Model Training"]
-        --> G["Hyperparameter Optimization"]
-    end
+    H --> I{{"🏆 Best Model\nLightGBM Tuned\nR²=0.900"}}
 
-    G --> H["Best Optimized Model"]
-    H --> I(["Evaluation"])...
+    I --> J["🔍 SHAP Analysis\nGlobal + Local Explanations"]
+    I --> K["💾 Model Artifacts\nlightgbm_tuned.pkl"]
+
+    J --> L["📈 Outputs\nFigures · Reports · Forecasts"]
+    K --> L
+
+    style A fill:#e8f4fd,stroke:#2980b9,color:#1a1a2e
+    style D fill:#fef9c3,stroke:#f39c12,color:#1a1a2e
+    style E fill:#fff4e6,stroke:#e67e22,color:#1a1a2e
+    style I fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
+    style J fill:#fdf2f8,stroke:#8e44ad,color:#1a1a2e
+    style L fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
 ```
 
 ### Step-by-Step Pipeline
@@ -279,28 +287,18 @@ python src/evaluation/explainability.py
 
 ---
 
-### Baseline Model Performance
+## 📊 Results
 
-| Model | R² | MAE | RMSE | RMSLE | MAPE (Non-Zero %) | Train Time (s) |
-|-------|:--:|:---:|:----:|:-----:|:-----------------:|:--------------:|
-| **LightGBM** | **0.899** | **9.149** | **20.236** | **0.773** | 59.77% | 0.20 |
-| Random Forest | 0.897 | 9.174 | 20.476 | 0.779 | 57.95% | 3.46 |
-| CatBoost | 0.872 | 9.853 | 22.739 | 0.778 | 60.94% | 9.22 |
-| XGBoost | 0.849 | 10.756 | 24.709 | 0.813 | 62.61% | 2.24 |
-| SVR | 0.690 | 14.389 | 35.479 | 0.957 | 64.83% | 4.02 |
-| Ridge Regression | 0.640 | 17.206 | 38.204 | 1.098 | 66.04% | 0.04 |
+### Baseline vs. Tuned Performance
 
-### Tuned Model Performance
-
-| Model | R² | MAE | RMSE | RMSLE | MAPE (Non-Zero %) | Train Time (s) |
-|-------|:--:|:---:|:----:|:-----:|:-----------------:|:--------------:|
-| **LightGBM ⭐** | **0.900** | **8.927** | **20.095** | **0.766** | 57.31% | 3.59 |
-| CatBoost | 0.898 | 9.026 | 20.310 | 0.769 | 57.27% | 5.80 |
-| XGBoost | 0.891 | 9.367 | 20.998 | 0.772 | 58.71% | 3.61 |
-| Random Forest | 0.889 | 8.985 | 21.234 | 0.769 | 56.97% | 9.68 |
-| Ridge Regression | 0.638 | 17.276 | 38.323 | 1.098 | 66.04% | 0.03 |
-| SVR | 0.383 | 18.702 | 49.998 | 0.911 | 80.72% | 48.52 |
-
+| Model | R² | MAE | RMSE | RMSLE |
+|-------|:--:|:---:|:----:|:-----:|
+| **LightGBM ⭐ (tuned)** | **0.900** | **8.927** | **20.094** | **0.765** |
+| CatBoost (tuned) | 0.898 | 9.026 | 20.310 | 0.768 |
+| XGBoost (tuned) | 0.891 | 9.366 | 20.998 | 0.772 |
+| Random Forest (tuned) | 0.888 | 8.984 | 21.234 | 0.769 |
+| Ridge Regression | 0.637 | 17.275 | 38.322 | 1.097 |
+| SVR | 0.383 | 18.702 | 49.997 | 0.910 |
 
 **Key Finding:** Hyperparameter tuning substantially improves all gradient-boosting models. Ridge and SVR show limited or negative gains, confirming their unsuitability for this high-dimensional, non-linear problem. LightGBM achieves the best score across all four metrics.
 
@@ -431,3 +429,4 @@ Patuakhali Science and Technology University (PSTU), Bangladesh · 2026
 <sub>Built with ❤️ · LightGBM · SHAP · Open-Meteo · ERA5</sub>
 
 </div>
+

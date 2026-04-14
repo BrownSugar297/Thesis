@@ -1,6 +1,6 @@
 <div align="center">
 
-# Explainable Ensemble Models for Spatio-Temporal Dengue Outbreak Forecasting in Bangladesh
+# 🦟 Dengue Outbreak Forecasting — Bangladesh
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![LightGBM](https://img.shields.io/badge/LightGBM-Best_Model-2ECC71?style=for-the-badge)](https://lightgbm.readthedocs.io)
@@ -12,357 +12,134 @@
 
 <br/>
 
-> **A spatio-temporal machine learning framework for daily dengue outbreak prediction  
-> across all 8 administrative divisions of Bangladesh — powered by LightGBM + SHAP.**
+> **Explainable Ensemble Models for Spatio-Temporal Dengue Outbreak Forecasting in Bangladesh**
+> A leakage-aware ML pipeline combining daily epidemiological surveillance with climate reanalysis data
+> across all 8 administrative divisions — powered by LightGBM + SHAP.
 
 <br/>
 
-| 🎯 R² Score | 📉 MAE | 📊 RMSE | 📐 RMSLE |
-|:-----------:|:------:|:-------:|:--------:|
+| 🎯 R² | 📉 MAE | 📊 RMSE | 📐 RMSLE |
+|:-----:|:------:|:-------:|:--------:|
 | **0.900** | **8.927** | **20.094** | **0.765** |
 
 <sub>Best model: LightGBM (tuned) · Test period: January – October 2025</sub>
-
-<br/>
 
 </div>
 
 ---
 
-## 📖 Table of Contents
+## 📌 Table of Contents
 
 - [Overview](#-overview)
-- [Key Contributions](#-key-contributions)
-- [Tech Stack](#-tech-stack)
+- [Features](#-features)
+- [Architecture & Workflow](#-architecture--workflow)
+- [Project Structure](#-project-structure)
 - [Dataset](#-dataset)
-- [Methodology](#-methodology)
-- [Hyperparameter Optimization](#-hyperparameter-optimization)
+- [Installation](#-installation)
+- [Usage](#-usage)
 - [Results](#-results)
 - [Explainability (SHAP)](#-explainability-shap)
-- [Repository Structure](#-repository-structure)
-- [Getting Started](#-getting-started)
-- [Requirements](#-requirements)
-- [Key Outputs](#-key-outputs)
-- [Limitations](#-limitations)
-- [Future Work](#-future-work)
-- [Acknowledgements](#-acknowledgements)
+- [Technologies Used](#-technologies-used)
+- [Configuration](#-configuration)
+- [Contributing](#-contributing)
+- [License](#-license)
+- [Author](#-author)
 
 ---
 
 ## 🔍 Overview
 
-Dengue fever poses a severe and escalating public health challenge in Bangladesh, driven by Aedes mosquito proliferation under warm, wet monsoon conditions. Classical compartmental models (SIR, SEIR) and linear regression approaches fail to capture the **non-linear, time-lagged, spatially heterogeneous** dynamics of dengue transmission at national scale.
+Dengue fever is a rapidly escalating public health crisis in Bangladesh, driven by Aedes mosquito proliferation under monsoon climate conditions. Traditional compartmental models (SIR/SEIR) and linear approaches fail to capture the **non-linear, time-lagged, and spatially heterogeneous** dynamics of dengue at national scale.
 
-This research presents a fully integrated, **leakage-aware machine learning pipeline** that:
+This project delivers a fully integrated, production-ready ML pipeline that fuses **daily epidemiological surveillance** (DGHS) with **high-resolution meteorological reanalysis** (Open-Meteo & ERA5) to forecast daily dengue case counts across all 8 divisions of Bangladesh — with transparent SHAP-based explanations aligned to established epidemiological science.
 
-- Fuses **daily epidemiological surveillance** (DGHS) with **high-resolution meteorological reanalysis** (Open-Meteo & ERA5)
-- Applies **advanced feature engineering** — autoregressive lags, rolling statistics, Fourier seasonality, and composite climate indices
-- Benchmarks **6 regression models** under strict chronological validation with rigorous hyperparameter optimization
-- Delivers **SHAP-based explainability** for transparent, actionable public health insights
-
-The framework is designed as a **decision-support tool** for dengue early warning and healthcare resource allocation across Bangladesh's 8 administrative divisions.
+**Why it matters:** Early, explainable dengue forecasts enable public health authorities to pre-position medical resources, issue timely advisories, and target vector control interventions — potentially saving lives and reducing healthcare system strain.
 
 ---
 
-## 🏆 Key Contributions
+## 🚀 Features
+
+- **Leakage-free pipeline** — strict chronological train/test split with training-only `StandardScaler` fitting
+- **Advanced feature engineering** — autoregressive lags, rolling statistics, Fourier seasonality, and composite climate indices (Heat Index, Rain-Temp Index)
+- **6-model benchmark** — Ridge, Random Forest, SVR, XGBoost, CatBoost, LightGBM with baseline → tuned comparison
+- **Rigorous HPO** — `RandomizedSearchCV` (100 iterations) with 5-fold time-series CV and early stopping
+- **Full SHAP explainability** — global beeswarm plots and local prediction explanations
+- **Division-level spatial analysis** — per-division, per-season error breakdown across all 8 administrative regions
+- **Reproducible** — modular `src/` pipeline with saved model artifacts (`.pkl`, `.json`)
+
+---
+
+## 🧠 Architecture & Workflow
+
+### Visual Overview
+
+```mermaid
+flowchart TD
+    A[("📡 Data Sources\nDGHS · Open-Meteo · ERA5")] --> B["🧹 Preprocessing\ncleaning.py · transforms.py"]
+    B --> C["⚙️ Feature Engineering\nLags · Rolling Stats · Fourier · Climate Indices"]
+    C --> D["📅 Chronological Split\nTrain: Jan 2022 – Dec 2024\nTest: Jan 2025 – Oct 2025"]
+
+    D --> E["📏 StandardScaler\nFit on TRAIN only → apply to TEST"]
+    E --> F["🔁 RandomizedSearchCV\n100 iter · 5-fold Time-Series CV\nObjective: RMSLE"]
+
+    F --> G1["🌲 Ridge / RF / SVR\nBaseline Models"]
+    F --> G2["⚡ XGBoost · CatBoost · LightGBM\nGradient Boosting + Early Stopping"]
+
+    G1 --> H["📊 Evaluation\nMAE · RMSE · RMSLE · R²"]
+    G2 --> H
+
+    H --> I{{"🏆 Best Model\nLightGBM Tuned\nR²=0.900"}}
+
+    I --> J["🔍 SHAP Analysis\nGlobal + Local Explanations"]
+    I --> K["💾 Model Artifacts\nlightgbm_tuned.pkl"]
+
+    J --> L["📈 Outputs\nFigures · Reports · Forecasts"]
+    K --> L
+
+    style A fill:#e8f4fd,stroke:#2980b9,color:#1a1a2e
+    style D fill:#fef9c3,stroke:#f39c12,color:#1a1a2e
+    style E fill:#fff4e6,stroke:#e67e22,color:#1a1a2e
+    style I fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
+    style J fill:#fdf2f8,stroke:#8e44ad,color:#1a1a2e
+    style L fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
+```
+
+### Step-by-Step Pipeline
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  1.  Integrated Dataset      Daily dengue + climate data for    │
-│                              all 8 divisions, 2022–2025         │
-│                                                                 │
-│  2.  Leakage-Aware Pipeline  Strict chronological split,        │
-│                              training-only scaling              │
-│                                                                 │
-│  3.  Model Benchmarking      6 models compared baseline → HPO   │
-│                              LightGBM identified as best        │
-│                                                                 │
-│  4.  SHAP Interpretability   Global + local explanations        │
-│                              aligned with epidemiology          │
-└─────────────────────────────────────────────────────────────────┘
+[Data Collection] ──▶ [Preprocessing] ──▶ [Feature Engineering]
+      │                     │                      │
+  DGHS cases          Imputation             Lag-3/7/14
+  Open-Meteo          FWD-fill only          Rolling 7d/14d
+  ERA5 reanalysis     log(1+y) target        Fourier sin/cos
+                      Train-only scale       Heat Index, RTI
+                                             Division one-hot
+                              │
+                    [Chronological Split]
+                    Train: 2022 – 2024
+                    Test:  2025
+                              │
+             ┌────────────────┴───────────────┐
+             │    RandomizedSearchCV HPO      │
+             │  5-fold TS-CV · 100 iter       │
+             │  Early stopping (50–100 rounds)│
+             └────────────────────────────────┘
+                              │
+              ┌───────────────┴──────────────┐
+              │                              │
+        [Baseline Models]            [Boosting Models]
+        Ridge · RF · SVR             XGBoost · CatBoost
+                                      LightGBM ⭐
+              └───────────────┬──────────────┘
+                              │
+                     [Evaluation & SHAP]
+                     MAE · RMSE · RMSLE · R²
+                     Beeswarm · Division heatmap
 ```
 
 ---
 
-## 🛠 Tech Stack
-
-| Layer | Tools & Libraries |
-|-------|-------------------|
-| **Language** | Python 3.9+ |
-| **Data Processing** | pandas, numpy |
-| **Machine Learning** | scikit-learn, LightGBM, XGBoost, CatBoost |
-| **Hyperparameter Optimization** | `RandomizedSearchCV` (scikit-learn), early stopping callbacks |
-| **Model Tuning** | 5-fold time-series CV · 100-iteration random search · RMSLE objective |
-| **Explainability** | SHAP (SHapley Additive exPlanations) |
-| **Geospatial** | geopandas |
-| **Visualization** | matplotlib, seaborn |
-| **Weather Data** | Open-Meteo Archive API, ERA5 / ECMWF (Climate Data Store) |
-| **Notebooks** | Jupyter |
-| **Model Serialization** | pickle (`.pkl`), JSON (`.json`) |
-
----
-
-## 📊 Dataset
-
-### Sources
-
-| Source | Description | Resolution | Coverage |
-|--------|-------------|------------|----------|
-| [DGHS Bangladesh](https://dghs.gov.bd) | Daily division-wise dengue case counts | Division-level | Jan 2022 – Oct 2025 |
-| [Open-Meteo API](https://open-meteo.com) | Temperature, rainfall, relative humidity | Daily (gridded) | Jan 2022 – Oct 2025 |
-| [ERA5 / ECMWF](https://cds.climate.copernicus.eu) | Meteorological reanalysis | Daily (gridded) | Jan 2022 – Oct 2025 |
-
-### Dataset Statistics
-
-```
-Total Observations  :  11,088   (8 divisions × ~1,386 days)
-Zero Inflation      :  42.29%   daily records with zero cases
-Target Variable     :  Daily dengue case count per division
-Transformation      :  log(1 + y) for training; exp(ŷ) − 1 for evaluation
-```
-
-### Division-Wise Case Summary (2022–2025)
-
-| Division | Mean Cases/Day | Max Cases/Day | Std Dev |
-|----------|:--------------:|:-------------:|:-------:|
-| 🔴 Dhaka | 217.07 | 1,703 | 358.25 |
-| 🟠 Chattogram | 57.34 | 547 | 96.32 |
-| 🟠 Barishal | 48.29 | 477 | 84.81 |
-| 🟡 Khulna | 37.24 | 436 | 79.12 |
-| 🟡 Rajshahi | 21.49 | 246 | 44.66 |
-| 🟢 Mymensingh | 10.49 | 105 | 19.21 |
-| 🟢 Rangpur | 5.79 | 88 | 14.05 |
-| 🟢 Sylhet | 1.53 | 30 | 3.97 |
-
-> **Note:** A short data gap in July 2024 arose from a nationwide network outage that interrupted official DGHS reporting. Missing values were imputed using division-wise monthly averages to preserve regional variation without introducing look-ahead bias.
-
----
-
-## ⚙️ Methodology
-
-### End-to-End Pipeline
-
-```
-┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐
-│  Data        │───▶│  Preprocess  │───▶│  Feature Engineering │
-│  Collection  │    │  & Clean     │    │  (Lags, Fourier, HI) │
-└──────────────┘    └──────────────┘    └──────────┬───────────┘
-                                                   │
-                         ┌─────────────────────────▼────────────┐
-                         │   Chronological Train / Test Split   │
-                         │   Train: Jan 2022 – Dec 2024         │
-                         │   Test:  Jan 2025 – Oct 2025         │
-                         └─────────────────┬────────────────────┘
-                                           │
-                    ┌──────────────────────▼───────────────────────┐
-                    │           Model Training & HPO               │
-                    │  Ridge · RF · SVR · XGBoost · CatBoost ·    │
-                    │  LightGBM  │  RandomizedSearchCV (100 iter)  │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-                         ┌─────────────────▼──────────────────┐
-                         │   Evaluation: MAE · RMSE ·         │
-                         │   RMSLE · R²  +  SHAP Analysis     │
-                         └────────────────────────────────────┘
-```
-
-### 1. Preprocessing
-
-- **Imputation:** July 2024 gap filled with division-wise monthly averages (respects temporal order)
-- **Short gaps:** Forward-fill only on past values — no look-ahead leakage
-- **Scaling:** `StandardScaler` fit exclusively on training data; applied to test data
-- **Target transform:** `y' = log(1 + y)` to handle zero-inflation and right skew
-
-### 2. Feature Engineering
-
-| Category | Feature(s) | Description |
-|----------|-----------|-------------|
-| **Autoregressive Lags** | `lag3`, `lag7`, `lag14` | Past case counts at 3, 7, 14-day offsets |
-| **Rolling Statistics** | `rolling_7d_mean`, `rolling_14d_mean` | Smoothed outbreak momentum |
-| **Seasonal Encoding** | `fourier_sin`, `fourier_cos` | Harmonic annual seasonality terms |
-| **Season Labels** | One-hot | Winter / Spring / Pre-Monsoon / Monsoon / Post-Monsoon |
-| **Climate Indices** | Heat Index (HI), RTI | Non-linear composite climate effects |
-| **Meteorological Lags** | `avg_temp_lag14`, `rain_lag*` | Lagged temperature and rainfall |
-| **Spatial Features** | Division one-hot (×8) | Region-specific effects in a global model |
-| **Temporal** | `day_of_year` | Smooth within-year position |
-
-**Formulas:**
-
-$$y_t^{(\text{lag}_n)} = y_{t-n}, \quad n \in \{3, 7, 14\}$$
-
-$$\text{mean}_t^{(w)} = \frac{1}{w} \sum_{i=t-w+1}^{t} y_i, \quad w \in \{7, 14\}$$
-
-$$S_t = \sum_{k=1}^{K} \left[ A_k \cos\!\left(\frac{2\pi k t}{T}\right) + B_k \sin\!\left(\frac{2\pi k t}{T}\right) \right]$$
-
-$$\text{RTI} = \text{Rainfall} \times T$$
-
-### 3. Models Evaluated
-
-| Model | Category |
-|-------|----------|
-| Ridge Regression | Linear baseline |
-| Random Forest | Bagging ensemble |
-| Support Vector Regression (SVR) | Kernel-based |
-| XGBoost | Gradient boosting |
-| CatBoost | Gradient boosting |
-| **LightGBM ⭐** | **Gradient boosting (best)** |
-
----
-
-## 🔧 Hyperparameter Optimization
-
-Hyperparameter optimization (HPO) was conducted using **`RandomizedSearchCV`** from scikit-learn with time-series–aware cross-validation, ensuring no future data ever leaked into training folds during the search.
-
-### Search Strategy
-
-| Setting | Value |
-|---------|-------|
-| Search method | `RandomizedSearchCV` |
-| Number of iterations | 100 per model |
-| Cross-validation | 5-fold time-series CV (chronological) |
-| Optimization metric | RMSLE (log-domain) |
-| Validation split | 10% held-out from training end |
-| Early stopping (boosting) | 50–100 rounds patience |
-| Final refit | Full training set after best params found |
-
-### Search Spaces
-
-**LightGBM**
-```python
-{
-    "n_estimators":      [500, 1000, 1500, 2000],
-    "learning_rate":     [0.005, 0.01, 0.02, 0.05],
-    "num_leaves":        [31, 63, 127, 255],
-    "max_depth":         [-1, 6, 8, 10, 12],
-    "min_child_samples": [10, 20, 30, 50],
-    "subsample":         [0.6, 0.7, 0.8, 0.9, 1.0],
-    "colsample_bytree":  [0.6, 0.7, 0.8, 0.9, 1.0],
-    "reg_alpha":         [0, 0.01, 0.1, 0.5, 1.0],
-    "reg_lambda":        [0, 0.01, 0.1, 0.5, 1.0],
-}
-```
-
-**XGBoost**
-```python
-{
-    "n_estimators":      [500, 1000, 1500, 2000],
-    "learning_rate":     [0.005, 0.01, 0.02, 0.05],
-    "max_depth":         [3, 5, 6, 8, 10],
-    "min_child_weight":  [1, 3, 5, 10],
-    "subsample":         [0.6, 0.7, 0.8, 0.9],
-    "colsample_bytree":  [0.6, 0.7, 0.8, 0.9],
-    "gamma":             [0, 0.1, 0.3, 0.5],
-    "reg_alpha":         [0, 0.01, 0.1, 1.0],
-    "reg_lambda":        [0.5, 1.0, 2.0, 5.0],
-}
-```
-
-**CatBoost**
-```python
-{
-    "iterations":           [500, 1000, 1500, 2000],
-    "learning_rate":        [0.005, 0.01, 0.03, 0.05],
-    "depth":                [4, 6, 8, 10],
-    "l2_leaf_reg":          [1, 3, 5, 10, 20],
-    "bagging_temperature":  [0, 0.5, 1.0, 2.0],
-    "random_strength":      [0, 0.5, 1.0, 2.0],
-    "border_count":         [32, 64, 128, 254],
-}
-```
-
-**Random Forest**
-```python
-{
-    "n_estimators":      [200, 500, 800, 1000],
-    "max_depth":         [None, 10, 20, 30],
-    "min_samples_split": [2, 5, 10],
-    "min_samples_leaf":  [1, 2, 4],
-    "max_features":      ["sqrt", "log2", 0.5, 0.7],
-    "bootstrap":         [True, False],
-}
-```
-
-### Early Stopping
-
-For all gradient-boosting models, a 10% held-out validation slice (chronologically last portion of the training set) was used as the early-stopping monitor. Training was halted if the validation RMSLE did not improve for **50 consecutive rounds** (LightGBM / XGBoost) or **100 rounds** (CatBoost), preventing overfitting to the training distribution.
-
-### Post-HPO Refit
-
-After identifying the best hyperparameter configuration for each model, the model was **re-trained from scratch on the entire training period** (Jan 2022 – Dec 2024) using those parameters — without the held-out validation slice — to maximally leverage available data before evaluation on the unseen 2025 test set.
-
----
-
-## 📈 Results
-
-### Baseline Performance (Default Hyperparameters)
-
-| Model | R² | MAE | RMSE | RMSLE |
-|-------|:--:|:---:|:----:|:-----:|
-| LightGBM | 0.899 | 9.148 | 20.236 | 0.773 |
-| Random Forest | 0.896 | 9.173 | 20.476 | 0.778 |
-| CatBoost | 0.872 | 9.852 | 22.739 | 0.777 |
-| XGBoost | 0.849 | 10.759 | 24.708 | 0.812 |
-| SVR | 0.689 | 14.389 | 35.478 | 0.957 |
-| Ridge Regression | 0.640 | 17.206 | 38.203 | 1.097 |
-
-### After Hyperparameter Tuning
-
-| Model | R² | MAE | RMSE | RMSLE |
-|-------|:--:|:---:|:----:|:-----:|
-| **LightGBM ⭐** | **0.900** | **8.927** | **20.094** | **0.765** |
-| CatBoost | 0.898 | 9.026 | 20.310 | 0.768 |
-| XGBoost | 0.891 | 9.366 | 20.998 | 0.772 |
-| Random Forest | 0.888 | 8.984 | 21.234 | 0.769 |
-| Ridge Regression | 0.637 | 17.275 | 38.322 | 1.097 |
-| SVR | 0.383 | 18.702 | 49.997 | 0.910 |
-
-> **Key finding:** Hyperparameter tuning substantially improves all gradient-boosting models. Ridge and SVR show limited or negative gains, confirming their unsuitability for this high-dimensional, non-linear problem. LightGBM achieves the highest R² and the lowest MAE, RMSE, and RMSLE across all candidates.
-
-### Temporal Forecasting Performance (2025 Test Period)
-
-The LightGBM model closely tracks outbreak dynamics throughout 2025, capturing both seasonal peaks and troughs. The largest absolute errors occur during extreme monsoon and post-monsoon surges — where rapid incidence fluctuations push the limits of any data-driven model.
-
-### Division × Season Error Analysis
-
-Prediction errors vary significantly by region and season:
-
-- **Highest MAE:** Dhaka during Monsoon (30.3) and Post-Monsoon (72.0) — driven by extreme, rapidly evolving urban transmission
-- **Lowest MAE:** Sylhet and Rangpur throughout all seasons — low and stable incidence makes forecasting tractable
-- **Barishal:** Notable spike in Pre-Monsoon (27.4) reflecting early seasonal surges
-
----
-
-## 🔍 Explainability (SHAP)
-
-SHAP (SHapley Additive exPlanations) values were computed for the optimized LightGBM model to provide both global feature importance and local prediction explanations.
-
-### Top Predictors (Ranked by Mean |SHAP|)
-
-```
-Rank  Feature                      Interpretation
-────  ───────────────────────────  ─────────────────────────────────────────
- 1    rolling_Patients_7d_mean     7-day rolling avg of past cases (strongest)
- 2    Patients_lag7                Dengue case count 7 days prior
- 3    rolling_Patients_14d_mean    14-day rolling average of past cases
- 4    Patients_lag14               Dengue case count 14 days prior
- 5    fourier_cos                  Seasonal cosine encoding
- 6    avg_temp_lag14               14-day lagged average temperature
- 7    rolling_avg_temp_14d_mean    14-day rolling mean temperature
- 8    rolling_avg_temp_7d_mean     7-day rolling mean temperature
- 9    fourier_sin                  Seasonal sine encoding
-10    Patients_lag3                Dengue case count 3 days prior
-```
-
-### Key Epidemiological Findings
-
-1. **Past case counts dominate** — autoregressive lags and rolling averages are by far the strongest predictors, consistent with the self-sustaining dynamics of dengue transmission
-2. **Seasonal structure matters** — Fourier encodings capture annual outbreak timing, reflecting the well-known monsoon/post-monsoon peak pattern
-3. **Temperature plays a secondary but meaningful role** — lagged and rolling temperature features confirm the known association between warm conditions and Aedes mosquito activity
-4. **Epidemiological plausibility confirmed** — SHAP explanations align with established dengue transmission science, validating the model as a trustworthy decision-support tool
-
----
-
-## 📁 Repository Structure
+## 📂 Project Structure
 
 ```
 dengue-forecasting-bangladesh/
@@ -370,35 +147,35 @@ dengue-forecasting-bangladesh/
 ├── 📂 data/
 │   ├── raw/
 │   │   ├── dghs_dengue_cases.csv           # Daily division-wise dengue cases (DGHS)
-│   │   └── BD_Daily_Weather_2022-2025.csv  # Meteorological data (Open-Meteo/ERA5)
+│   │   └── BD_Daily_Weather_2022-2025.csv  # Meteorological data (Open-Meteo / ERA5)
 │   └── processed/
 │       └── integrated_dataset.csv          # Cleaned & feature-engineered dataset
 │
 ├── 📓 notebooks/
 │   ├── 01_EDA.ipynb                        # Exploratory Data Analysis
-│   ├── 02_preprocessing.ipynb              # Data cleaning & preprocessing
-│   ├── 03_feature_engineering.ipynb        # Lag features, Fourier encoding, climate indices
+│   ├── 02_preprocessing.ipynb              # Cleaning & preprocessing
+│   ├── 03_feature_engineering.ipynb        # Lags, Fourier, climate indices
 │   ├── 04_model_training.ipynb             # Baseline & tuned model training
-│   ├── 05_evaluation.ipynb                 # Performance metrics & comparison
+│   ├── 05_evaluation.ipynb                 # Metrics & model comparison
 │   └── 06_explainability.ipynb             # SHAP analysis & visualization
 │
 ├── 📦 src/
 │   ├── data_collection/
-│   │   └── fetch_weather.py                # Open-Meteo API script for weather retrieval
+│   │   └── fetch_weather.py                # Open-Meteo API retrieval script
 │   ├── preprocessing/
-│   │   ├── cleaning.py                     # Missing value handling, imputation
-│   │   └── transforms.py                   # Log transformation, scaling
+│   │   ├── cleaning.py                     # Imputation & gap handling
+│   │   └── transforms.py                   # Log transform, StandardScaler
 │   ├── features/
 │   │   ├── lag_features.py                 # Autoregressive lag generation
 │   │   ├── rolling_stats.py                # Rolling window statistics
 │   │   ├── fourier_encoding.py             # Seasonal Fourier features
 │   │   └── climate_indices.py              # Heat Index, Rain-Temp Index
 │   ├── models/
-│   │   ├── train_baseline.py               # Ridge, RF, SVR training
+│   │   ├── train_baseline.py               # Ridge, RF, SVR
 │   │   ├── train_boosting.py               # LightGBM, CatBoost, XGBoost
 │   │   └── hyperparameter_tuning.py        # RandomizedSearchCV + early stopping
 │   └── evaluation/
-│       ├── metrics.py                      # MAE, RMSE, RMSLE, R² computation
+│       ├── metrics.py                      # MAE, RMSE, RMSLE, R²
 │       └── explainability.py               # SHAP beeswarm & summary plots
 │
 ├── 📊 outputs/
@@ -412,11 +189,45 @@ dengue-forecasting-bangladesh/
 
 ---
 
-## 🚀 Getting Started
+## 📁 Dataset
+
+| Source | Description | Resolution | Coverage |
+|--------|-------------|------------|----------|
+| [DGHS Bangladesh](https://dghs.gov.bd) | Daily division-wise dengue case counts | Division-level | Jan 2022 – Oct 2025 |
+| [Open-Meteo API](https://open-meteo.com) | Temperature, rainfall, relative humidity | Daily (gridded) | Jan 2022 – Oct 2025 |
+| [ERA5 / ECMWF](https://cds.climate.copernicus.eu) | Meteorological reanalysis | Daily (gridded) | Jan 2022 – Oct 2025 |
+
+**Dataset Statistics**
+
+```
+Total Observations  :  11,088   (8 divisions × ~1,386 days)
+Zero Inflation      :  42.29%   daily records with zero cases
+Target Variable     :  Daily dengue case count per division
+Transformation      :  log(1 + y) for training; exp(ŷ) − 1 for evaluation
+```
+
+**Division-Wise Case Summary (2022–2025)**
+
+| Division | Mean Cases/Day | Max Cases/Day |
+|----------|:--------------:|:-------------:|
+| 🔴 Dhaka | 217.07 | 1,703 |
+| 🟠 Chattogram | 57.34 | 547 |
+| 🟠 Barishal | 48.29 | 477 |
+| 🟡 Khulna | 37.24 | 436 |
+| 🟡 Rajshahi | 21.49 | 246 |
+| 🟢 Mymensingh | 10.49 | 105 |
+| 🟢 Rangpur | 5.79 | 88 |
+| 🟢 Sylhet | 1.53 | 30 |
+
+> **Note:** A data gap in July 2024 (nationwide network outage) was imputed using division-wise monthly averages to preserve regional variation without introducing look-ahead bias.
+
+---
+
+## ⚙️ Installation
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.9+
 - `pip` or `conda`
 
 ### 1. Clone the Repository
@@ -439,110 +250,182 @@ conda env create -f environment.yml
 conda activate dengue-env
 ```
 
-### 3. Fetch Meteorological Data
+---
+
+## ▶️ Usage
+
+### Step 1 — Fetch Meteorological Data
 
 ```bash
 python src/data_collection/fetch_weather.py
 ```
 
-Retrieves daily temperature, rainfall, and humidity data from Open-Meteo for all 8 divisions using centroid coordinates.
+Retrieves daily temperature, rainfall, and humidity from Open-Meteo for all 8 divisions using centroid coordinates.
 
-### 4. Run the Full Pipeline
+### Step 2 — Preprocess & Engineer Features
 
 ```bash
-# ── Step 1: Preprocess & engineer features ──────────────────────
 python src/preprocessing/cleaning.py
 python src/features/lag_features.py
+```
 
-# ── Step 2: Train and tune models ───────────────────────────────
+### Step 3 — Train & Tune Models
+
+```bash
 python src/models/train_boosting.py
 python src/models/hyperparameter_tuning.py
+```
 
-# ── Step 3: Evaluate and explain ────────────────────────────────
+### Step 4 — Evaluate & Explain
+
+```bash
 python src/evaluation/metrics.py
 python src/evaluation/explainability.py
 ```
 
-> **Alternative:** Run the Jupyter notebooks in order under `notebooks/` for an interactive, step-by-step walkthrough.
+> **Interactive option:** Run notebooks `01` through `06` under `notebooks/` for a guided, step-by-step walkthrough with inline visualizations.
 
 ---
 
-## 📦 Requirements
+## 📊 Results
 
-```
-lightgbm      >= 4.0
-catboost      >= 1.2
-xgboost       >= 2.0
-scikit-learn  >= 1.3
-pandas        >= 2.0
-numpy         >= 1.24
-shap          >= 0.44
-matplotlib    >= 3.7
-seaborn       >= 0.12
-geopandas     >= 0.14
-requests      >= 2.31
-jupyter
-```
+### Baseline vs. Tuned Performance
 
----
+| Model | R² | MAE | RMSE | RMSLE |
+|-------|:--:|:---:|:----:|:-----:|
+| **LightGBM ⭐ (tuned)** | **0.900** | **8.927** | **20.094** | **0.765** |
+| CatBoost (tuned) | 0.898 | 9.026 | 20.310 | 0.768 |
+| XGBoost (tuned) | 0.891 | 9.366 | 20.998 | 0.772 |
+| Random Forest (tuned) | 0.888 | 8.984 | 21.234 | 0.769 |
+| Ridge Regression | 0.637 | 17.275 | 38.322 | 1.097 |
+| SVR | 0.383 | 18.702 | 49.997 | 0.910 |
 
-## 📤 Key Outputs
+**Key Finding:** Hyperparameter tuning substantially improves all gradient-boosting models. Ridge and SVR show limited or negative gains, confirming their unsuitability for this high-dimensional, non-linear problem. LightGBM achieves the best score across all four metrics.
 
-| Output File | Description |
-|-------------|-------------|
-| `outputs/figures/shap_beeswarm.png` | SHAP global feature importance (beeswarm) |
-| `outputs/figures/observed_vs_predicted.png` | Temporal fit comparison — 2025 test period |
+### Key Output Files
+
+| File | Description |
+|------|-------------|
+| `outputs/figures/shap_beeswarm.png` | SHAP global feature importance |
+| `outputs/figures/observed_vs_predicted.png` | Temporal fit — 2025 test period |
 | `outputs/figures/division_mae_heatmap.png` | Division × Season MAE heatmap |
 | `outputs/figures/choropleth_2022_2025.png` | Spatial burden map across Bangladesh |
-| `outputs/figures/climate_trends.png` | Stacked dengue, temperature & rainfall trends |
-| `outputs/models/lightgbm_tuned.pkl` | Saved best LightGBM model (tuned) |
+| `outputs/models/lightgbm_tuned.pkl` | Saved best LightGBM model |
 
 ---
 
-## 🌍 Divisions Covered
+## 🔍 Explainability (SHAP)
 
-| | | | |
-|--|--|--|--|
-| 🟦 Barishal | 🟦 Chattogram | 🟦 Dhaka | 🟦 Khulna |
-| 🟦 Mymensingh | 🟦 Rajshahi | 🟦 Rangpur | 🟦 Sylhet |
+SHAP values computed for the optimized LightGBM model provide transparent, epidemiologically grounded explanations.
+
+**Top 10 Predictors (by Mean |SHAP|)**
+
+```
+Rank  Feature                      Interpretation
+────  ───────────────────────────  ──────────────────────────────────────
+ 1    rolling_Patients_7d_mean     7-day rolling avg of past cases
+ 2    Patients_lag7                Case count 7 days prior
+ 3    rolling_Patients_14d_mean    14-day rolling average
+ 4    Patients_lag14               Case count 14 days prior
+ 5    fourier_cos                  Seasonal cosine encoding
+ 6    avg_temp_lag14               14-day lagged temperature
+ 7    rolling_avg_temp_14d_mean    14-day rolling mean temperature
+ 8    rolling_avg_temp_7d_mean     7-day rolling mean temperature
+ 9    fourier_sin                  Seasonal sine encoding
+10    Patients_lag3                Case count 3 days prior
+```
+
+**Epidemiological Takeaways:**
+- Autoregressive lags dominate, consistent with dengue's self-sustaining transmission dynamics
+- Fourier terms capture the annual monsoon/post-monsoon outbreak timing
+- Lagged temperature features confirm the known link between warm conditions and Aedes activity
+- SHAP explanations align with established dengue science — validating the model as a trustworthy decision-support tool
+
+---
+
+## 🧪 Technologies Used
+
+| Layer | Tools |
+|-------|-------|
+| **Language** | Python 3.9+ |
+| **Data Processing** | pandas, numpy |
+| **Machine Learning** | scikit-learn, LightGBM, XGBoost, CatBoost |
+| **HPO** | `RandomizedSearchCV` + early stopping callbacks |
+| **Explainability** | SHAP |
+| **Geospatial** | geopandas |
+| **Visualization** | matplotlib, seaborn |
+| **Weather Data** | Open-Meteo Archive API, ERA5 / ECMWF |
+| **Notebooks** | Jupyter |
+| **Serialization** | pickle (`.pkl`), JSON (`.json`) |
+
+---
+
+## 🔧 Configuration
+
+No `.env` file is required. All configuration is handled directly in the source files.
+
+Key settings to adjust in `src/`:
+
+| Parameter | Location | Default | Description |
+|-----------|----------|---------|-------------|
+| `LAG_DAYS` | `lag_features.py` | `[3, 7, 14]` | Autoregressive lag offsets |
+| `ROLLING_WINDOWS` | `rolling_stats.py` | `[7, 14]` | Rolling window sizes (days) |
+| `N_ITER` | `hyperparameter_tuning.py` | `100` | RandomizedSearchCV iterations |
+| `CV_FOLDS` | `hyperparameter_tuning.py` | `5` | Time-series CV folds |
+| `EARLY_STOPPING` | `train_boosting.py` | `50` rounds | Early stopping patience |
+| `TEST_YEAR` | `transforms.py` | `2025` | Holdout test period start year |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! To get started:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m "Add your feature"`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Open a Pull Request
+
+Please ensure your code follows PEP 8 style guidelines and includes appropriate docstrings.
 
 ---
 
 ## ⚠️ Limitations
 
-- **Spatial resolution:** Division-level aggregation suppresses urban-rural heterogeneity and sub-district variation
-- **Surveillance bias:** Official DGHS data may contain underreporting or reporting delays
-- **Missing entomological data:** No mosquito vector density or serotype information included
-- **Data gap:** July 2024 blackout period was imputed using monthly averages — a necessary approximation
-- **Correlational explanations:** SHAP quantifies feature contributions, not causal relationships; causal inference requires further modeling
+- **Spatial resolution:** Division-level aggregation suppresses sub-district heterogeneity
+- **Surveillance bias:** DGHS data may contain underreporting or reporting delays
+- **Missing entomological data:** No mosquito vector density or serotype data included
+- **Correlational explanations:** SHAP quantifies feature contributions, not causal relationships
 
 ---
 
 ## 🔮 Future Work
 
-- [ ] **Sub-district forecasting** — upazila-level spatial granularity for targeted interventions
-- [ ] **Real-time data integration** — live DGHS surveillance and operational meteorological feeds
-- [ ] **Human mobility features** — mobile network or anonymized movement data for urban spread modeling
-- [ ] **Climate change scenarios** — long-horizon projections under CMIP6 warming pathways
-- [ ] **Causal inference** — structural models to disentangle climate vs. epidemiological drivers
-- [ ] **Cross-regional adaptation** — transfer learning to Southeast Asia and Latin America contexts
+- [ ] Sub-district (upazila-level) spatial granularity
+- [ ] Real-time DGHS + operational weather feed integration
+- [ ] Human mobility features via anonymized mobile data
+- [ ] Long-horizon projections under CMIP6 climate change scenarios
+- [ ] Causal inference to disentangle climate vs. epidemiological drivers
 
 ---
+
+## 📜 License
+
+This project is released under the [MIT License](LICENSE).
+
+---
+
+## 👤 Author
+
+**Ashikur Rahman Ashik**
+B.Sc. Thesis · Faculty of Computer Science and Engineering
+Patuakhali Science and Technology University (PSTU), Bangladesh · 2026
 
 <div align="center">
 
-<br/>
-
-**Faculty of Computer Science and Engineering**  
-Patuakhali Science and Technology University (PSTU)  
-Patuakhali, Bangladesh · 2026
-
-<br/>
-
 ---
 
-<sub>Developed by <strong>Ashikur Rahman Ashik</strong> · PSTU</sub>
-
-<br/>
+<sub>Built with ❤️ · LightGBM · SHAP · Open-Meteo · ERA5</sub>
 
 </div>

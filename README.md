@@ -75,33 +75,28 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ```mermaid
 flowchart TD
-    A[("📡 Data Sources\nDGHS · Open-Meteo · ERA5")] --> B["🧹 Preprocessing\ncleaning.py · transforms.py"]
-    B --> C["⚙️ Feature Engineering\nLags · Rolling Stats · Fourier · Climate Indices"]
-    C --> D["📅 Chronological Split\nTrain: Jan 2022 – Dec 2024\nTest: Jan 2025 – Oct 2025"]
+    A(["Data Acquisition and Initial Cleaning"])
+    --> B["Feature Engineering and Leakage Control"]
+    --> C{"Chronological Time Series Split"}
 
-    D --> E["📏 StandardScaler\nFit on TRAIN only → apply to TEST"]
-    E --> F["🔁 RandomizedSearchCV\n100 iter · 5-fold Time-Series CV\nObjective: RMSLE"]
+    C -->|"Jan 2022 to Dec 2024"| D["Training Set"]
+    C -->|"Jan 2025 to Oct 2025"| E["Test Set"]
 
-    F --> G1["🌲 Ridge / RF / SVR\nBaseline Models"]
-    F --> G2["⚡ XGBoost · CatBoost · LightGBM\nGradient Boosting + Early Stopping"]
+    D --> F
+    E --> H
 
-    G1 --> H["📊 Evaluation\nMAE · RMSE · RMSLE · R²"]
-    G2 --> H
+    subgraph DATA_SPLIT ["DATA SPLIT"]
+        D
+        E
+    end
 
-    H --> I{{"🏆 Best Model\nLightGBM Tuned\nR²=0.900"}}
+    subgraph MODEL_TRAINING ["MODEL TRAINING"]
+        F["Baseline Model Training"]
+        --> G["Hyperparameter Optimization"]
+    end
 
-    I --> J["🔍 SHAP Analysis\nGlobal + Local Explanations"]
-    I --> K["💾 Model Artifacts\nlightgbm_tuned.pkl"]
-
-    J --> L["📈 Outputs\nFigures · Reports · Forecasts"]
-    K --> L
-
-    style A fill:#e8f4fd,stroke:#2980b9,color:#1a1a2e
-    style D fill:#fef9c3,stroke:#f39c12,color:#1a1a2e
-    style E fill:#fff4e6,stroke:#e67e22,color:#1a1a2e
-    style I fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
-    style J fill:#fdf2f8,stroke:#8e44ad,color:#1a1a2e
-    style L fill:#f0fdf4,stroke:#27ae60,color:#1a1a2e
+    G --> H["Best Optimized Model"]
+    H --> I(["Evaluation"])
 ```
 
 ### Step-by-Step Pipeline

@@ -71,7 +71,7 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ```mermaid
 flowchart LR
-    ...flowchart LR
+    ...
     A(["Data Acquisition and Initial Cleaning"])
     --> B["Feature Engineering and Leakage Control"]
     --> C{"Chronological Time Series Split"}

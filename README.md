@@ -69,16 +69,17 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ---
 
-## 🧠 Architecture & Workflow
-
 ```mermaid
 flowchart LR
-    A(["🗄️ Data Acquisition\nand Initial Cleaning"])
-    --> B["🔧 Feature Engineering\nand Leakage Control"]
+    A(["🗄️ Data Acquisition & Initial Cleaning"])
+    --> B["🔧 Feature Engineering & Leakage Control"]
     --> C{"⏱️ Chronological\nTime Series Split"}
 
     C -->|"Jan 2022 – Dec 2024"| D["🗂️ Training Set"]
     C -->|"Jan 2025 – Oct 2025"| E["📄 Test Set"]
+
+    D --> F
+    E --> H
 
     subgraph DATA_SPLIT ["📦 DATA SPLIT"]
         D
@@ -86,22 +87,13 @@ flowchart LR
     end
 
     subgraph MODEL_TRAINING ["⚙️ MODEL TRAINING"]
-        F["🧱 Baseline Model\nTraining"]
-        --> G["🎛️ Hyperparameter\nOptimization"]
+        F["🧱 Baseline Model Training"]
+        --> G["🎛️ Hyperparameter Optimization"]
     end
 
-    D --> F
-    G --> H["🏆 Best Optimized\nModel"]
-    E --> H
+    G --> H["🏆 Best Optimized Model"]
     H --> I(["📊 Evaluation"])
 ` ``
-
-A few things to note:
-
-- GitHub renders Mermaid natively in `.md` files as of 2022, so no extra plugin is needed.
-- The `subgraph` blocks recreate the dashed/colored bounding boxes from the PNG (DATA SPLIT and MODEL TRAINING).
-- The diamond shape `{...}` is used for the decision/split node, and the rounded stadium shape `(["..."])` is used for the oval nodes (Data Acquisition, Evaluation).
-- GitHub doesn't support custom colors in Mermaid diagrams, so the visual grouping is handled via the subgraph labels instead.
 ```
 
 ### Step-by-Step Pipeline

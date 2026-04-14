@@ -71,29 +71,29 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ```mermaid
 flowchart LR
-    A(["🗄️ Data Acquisition & Initial Cleaning"])
-    --> B["🔧 Feature Engineering & Leakage Control"]
-    --> C{"⏱️ Chronological\nTime Series Split"}
+    ...flowchart LR
+    A(["Data Acquisition and Initial Cleaning"])
+    --> B["Feature Engineering and Leakage Control"]
+    --> C{"Chronological Time Series Split"}
 
-    C -->|"Jan 2022 – Dec 2024"| D["🗂️ Training Set"]
-    C -->|"Jan 2025 – Oct 2025"| E["📄 Test Set"]
+    C -->|"Jan 2022 to Dec 2024"| D["Training Set"]
+    C -->|"Jan 2025 to Oct 2025"| E["Test Set"]
 
     D --> F
     E --> H
 
-    subgraph DATA_SPLIT ["📦 DATA SPLIT"]
+    subgraph DATA_SPLIT ["DATA SPLIT"]
         D
         E
     end
 
-    subgraph MODEL_TRAINING ["⚙️ MODEL TRAINING"]
-        F["🧱 Baseline Model Training"]
-        --> G["🎛️ Hyperparameter Optimization"]
+    subgraph MODEL_TRAINING ["MODEL TRAINING"]
+        F["Baseline Model Training"]
+        --> G["Hyperparameter Optimization"]
     end
 
-    G --> H["🏆 Best Optimized Model"]
-    H --> I(["📊 Evaluation"])
-` ``
+    G --> H["Best Optimized Model"]
+    H --> I(["Evaluation"])...
 ```
 
 ### Step-by-Step Pipeline

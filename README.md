@@ -137,49 +137,109 @@ flowchart TD
 ## 📂 Project Structure
 
 ```
-dengue-forecasting-bangladesh/
+Regg Thesis/
 │
-├── 📂 data/
-│   ├── raw/
-│   │   ├── dghs_dengue_cases.csv           # Daily division-wise dengue cases (DGHS)
-│   │   └── BD_Daily_Weather_2022-2025.csv  # Meteorological data (Open-Meteo / ERA5)
-│   └── processed/
-│       └── integrated_dataset.csv          # Cleaned & feature-engineered dataset
+├── 📂 Dataset/
+│   ├── Dataset.csv                          # Raw integrated dataset
+│   ├── Final_Dataset.csv                    # Cleaned & feature-engineered dataset
+│   ├── split.py                             # Train/test split script
+│   ├── correlation.py                       # Correlation analysis
+│   ├── dataset_behavior.py                  # Dataset behavior analysis
+│   └── Map_full.py                          # Spatial mapping script
 │
-├── 📓 notebooks/
-│   ├── 01_EDA.ipynb                        # Exploratory Data Analysis
-│   ├── 02_preprocessing.ipynb              # Cleaning & preprocessing
-│   ├── 03_feature_engineering.ipynb        # Lags, Fourier, climate indices
-│   ├── 04_model_training.ipynb             # Baseline & tuned model training
-│   ├── 05_evaluation.ipynb                 # Metrics & model comparison
-│   └── 06_explainability.ipynb             # SHAP analysis & visualization
+├── 📂 Model_Train/
+│   ├── 01_baseline_train_save.py            # Baseline model training & saving
+│   ├── re_time_hpo_models.py                # Retraining HPO models
+│   ├── hpo_ridge.py                         # Ridge HPO script
+│   ├── hpo_randomforest.py                  # Random Forest HPO script
+│   ├── hpo_svr.py                           # SVR HPO script
+│   ├── hpo_xgboost.py                       # XGBoost HPO script
+│   ├── hpo_catboost.py                      # CatBoost HPO script
+│   ├── hpo_lightgbm.py                      # LightGBM HPO script
+│   ├── scaler_for_X_cont.pkl                # Fitted StandardScaler
+│   ├── X_train_scaled.csv                   # Scaled training features
+│   └── y_train_log.csv                      # Log-transformed training target
 │
-├── 📦 src/
-│   ├── data_collection/
-│   │   └── fetch_weather.py                # Open-Meteo API retrieval script
-│   ├── preprocessing/
-│   │   ├── cleaning.py                     # Imputation & gap handling
-│   │   └── transforms.py                   # Log transform, StandardScaler
-│   ├── features/
-│   │   ├── lag_features.py                 # Autoregressive lag generation
-│   │   ├── rolling_stats.py                # Rolling window statistics
-│   │   ├── fourier_encoding.py             # Seasonal Fourier features
-│   │   └── climate_indices.py              # Heat Index, Rain-Temp Index
-│   ├── models/
-│   │   ├── train_baseline.py               # Ridge, RF, SVR
-│   │   ├── train_boosting.py               # LightGBM, CatBoost, XGBoost
-│   │   └── hyperparameter_tuning.py        # RandomizedSearchCV + early stopping
-│   └── evaluation/
-│       ├── metrics.py                      # MAE, RMSE, RMSLE, R²
-│       └── explainability.py               # SHAP beeswarm & summary plots
+├── 📂 Model_Trained/
+│   ├── ridge_default.pkl                    # Trained baseline Ridge model
+│   ├── randomforest_default.pkl             # Trained baseline Random Forest model
+│   ├── svr_default.pkl                      # Trained baseline SVR model
+│   ├── xgboost_default.pkl                  # Trained baseline XGBoost model
+│   ├── catboost_default.pkl                 # Trained baseline CatBoost model
+│   ├── lightgbm_default.pkl                 # Trained baseline LightGBM model
+│   └── baseline_training_times_v4.csv       # Baseline model training times
 │
-├── 📊 outputs/
-│   ├── figures/                            # All plots and visualizations
-│   └── models/                             # Saved model files (.pkl / .json)
+├── � Model_Tuned/
+│   ├── ridge_tuned.pkl                      # Tuned Ridge model
+│   ├── randomforest_tuned.pkl               # Tuned Random Forest model
+│   ├── svr_tuned.pkl                        # Tuned SVR model
+│   ├── xgboost_tuned_full.pkl               # Tuned XGBoost model
+│   ├── catboost_tuned.pkl                   # Tuned CatBoost model
+│   └── lightgbm_tuned.pkl                   # Tuned LightGBM model (⭐ Best)
 │
-├── requirements.txt
-├── environment.yml
-└── README.md
+├── 📂 Model_Test/
+│   ├── X_test_scaled.csv                    # Scaled test features
+│   ├── y_test_log.csv                       # Log-transformed test target
+│   ├── y_test_original_patients.csv         # Original (non-transformed) test target
+│   ├── final_evaluation_table2.py           # Final evaluation script
+│   └── python 01b_baseline_evaluate.py      # Baseline evaluation script
+│
+├── 📂 HPO_Results/
+│   ├── ridge_hpo_results.csv                # Ridge HPO search results
+│   ├── randomforest_hpo_results.csv         # Random Forest HPO results
+│   ├── svr_hpo_results.csv                  # SVR HPO results
+│   ├── xgboost_hpo_results.csv              # XGBoost HPO results
+│   ├── catboost_hpo_results.csv             # CatBoost HPO results
+│   └── lightgbm_hpo_results.csv             # LightGBM HPO results
+│
+├── 📂 Results/
+│   ├── baseline_results_table1_final_v4.csv # Baseline model performance metrics
+│   └── Table_Tuned_Models_Performance.csv   # Tuned model performance metrics
+│
+├── 📂 Fig/
+│   ├── SHAP_Beeswarm.pdf                    # SHAP global feature importance
+│   ├── Figure7_Choropleth_Map_Overall_YlOrRd_2022_2025.pdf  # Spatial map
+│   ├── 2025_SpatioTemporal_Prediction.pdf   # Temporal prediction (2025)
+│   ├── _TimeSeries_Fit_and_Error_FINAL_V_FixedScaling.pdf   # Fit & error plot
+│   ├── _Seasonal_Error_YlOrRd.pdf           # Seasonal error heatmap
+│   ├── Correlation_Heatmap_l.pdf            # Feature correlation heatmap
+│   ├── Stacked_Climate_Trend_.pdf           # Climate trend visualization
+│   ├── dataset behaviour_Raw_Distribution_LogScaled.pdf     # Data distribution
+│   ├── flowchart.png                        # Pipeline flowchart
+│   └── impact_on_performance_after_tuning_final_adjusted.pdf # Tuning impact
+│
+├── 📂 Paper/
+│   ├── research_paper.pdf                   # Main research paper
+│   ├── Predefence report.pdf                # Pre-defense report
+│   ├── mahabub.pdf                          # Reference paper
+│   └── nsu.pdf                              # Reference paper
+│
+├── 📂 Reference/
+│   ├── final methodology.txt                # Methodology notes
+│   ├── result defence.txt                   # Result defense notes
+│   ├── table.txt                            # Table specifications
+│   ├── tuning.txt                           # HPO tuning notes
+│   ├── all column.txt                       # Column specifications
+│   ├── dataset feature.txt                  # Feature descriptions
+│   ├── dataset final ref.txt                # Dataset reference
+│   ├── evaluation er somoy mone rakhte hobe.txt  # Evaluation reminders
+│   ├── flowchart.txt                        # Flowchart notes
+│   ├── inverse transformtxt.txt             # Inverse transform notes
+│   ├── no data leak.txt                     # Data leak prevention notes
+│   └── reference for data engg.txt          # Data engineering references
+│
+├── 📂 catboost_info/                        # CatBoost training information
+│
+├── 📂 Thesis_env/                           # Python virtual environment
+│
+├── 📂 time series and spatio/               # Time series & spatial analysis
+│
+├── bd_weather_extract.py                    # Bangladesh weather data extraction
+├── metrics_helper.py                        # Metrics computation helper
+├── LightGBM-architecture.png                # LightGBM architecture diagram
+├── requirements.txt                         # Python dependencies
+├── .gitignore                               # Git ignore rules
+└── readme.md                                # Project documentation
 ```
 
 ---

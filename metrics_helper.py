@@ -47,16 +47,13 @@ def calculate_rmsle(y_true_log, y_pred_log):
     return np.sqrt(mean_squared_error(y_true_log, y_pred_log))
 
 
-
-
-# NOTE: The model_name argument is no longer needed but kept for compatibility.
 def calculate_metrics(y_test_log, y_test_raw, y_pred_log, model_name=None):
     """
     Calculates all required metrics for a given prediction.
     """
     metrics = {}
     
-    # 1. Physical Space Metrics (Calculated on Raw Counts after Inverse Transform)
+   
     y_pred_raw = np.maximum(0, np.expm1(y_pred_log))
     
     metrics['MAE'] = calculate_mae(y_test_raw, y_pred_raw)
@@ -64,10 +61,10 @@ def calculate_metrics(y_test_log, y_test_raw, y_pred_log, model_name=None):
     metrics['R2'] = calculate_r2(y_test_raw, y_pred_raw)
     metrics['SMAPE (%)'] = calculate_smape(y_test_raw, y_pred_raw)
     
-    # 2. Log Space Metrics
+
     metrics['RMSLE'] = calculate_rmsle(y_test_log, y_pred_log)
     
-    # 3. Statistical Loss Metric is RMSLE for all current ML models
+
     metrics['Statistical Loss Metric'] = metrics['RMSLE']
         
     return metrics

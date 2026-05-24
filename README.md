@@ -28,7 +28,7 @@
 
 ---
 
-## 📌 Table of Contents
+##  Table of Contents
 
 - [Overview](#-overview)
 - [Features](#-features)
@@ -47,7 +47,7 @@
 
 ---
 
-## 🔍 Overview
+##  Overview
 
 Dengue fever is a rapidly escalating public health crisis in Bangladesh, driven by Aedes mosquito proliferation under monsoon climate conditions. Traditional compartmental models (SIR/SEIR) and linear approaches fail to capture the **non-linear, time-lagged, and spatially heterogeneous** dynamics of dengue at national scale.
 
@@ -57,7 +57,7 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ---
 
-## 🚀 Features
+##  Features
 
 - **Leakage-free pipeline** — strict chronological train/test split with training-only `StandardScaler` fitting
 - **Advanced feature engineering** — autoregressive lags, rolling statistics, Fourier seasonality, and composite climate indices (Heat Index, Rain-Temp Index)
@@ -69,7 +69,7 @@ This project delivers a fully integrated, production-ready ML pipeline that fuse
 
 ---
 
-## 🧠 Architecture & Workflow
+##  Architecture & Workflow
 
 ### Visual Overview
 
@@ -134,7 +134,7 @@ flowchart TD
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 Regg Thesis/
@@ -244,7 +244,7 @@ Regg Thesis/
 
 ---
 
-## 📁 Dataset
+##  Dataset
 
 | Source | Description | Resolution | Coverage |
 |--------|-------------|------------|----------|
@@ -278,7 +278,7 @@ Transformation      :  log(1 + y) for training; exp(ŷ) − 1 for evaluation
 
 ---
 
-## ⚙️ Installation
+##  Installation
 
 ### Prerequisites
 
@@ -307,7 +307,7 @@ conda activate dengue-env
 
 ---
 
-## ▶️ Usage
+##  Usage
 
 ### Step 1 — Fetch Meteorological Data
 
@@ -342,7 +342,7 @@ python src/evaluation/explainability.py
 
 ---
 
-## 📊 Results
+##  Results
 
 ### Baseline Model Performance
 
@@ -381,7 +381,7 @@ python src/evaluation/explainability.py
 
 ---
 
-## 🔍 Explainability (SHAP)
+##  Explainability (SHAP)
 
 SHAP values computed for the optimized LightGBM model provide transparent, epidemiologically grounded explanations.
 
@@ -410,7 +410,7 @@ Rank  Feature                      Interpretation
 
 ---
 
-## 🧪 Technologies Used
+##  Technologies Used
 
 | Layer | Tools |
 |-------|-------|
@@ -427,7 +427,7 @@ Rank  Feature                      Interpretation
 
 ---
 
-## 🔧 Configuration
+##  Configuration
 
 No `.env` file is required. All configuration is handled directly in the source files.
 
@@ -444,7 +444,7 @@ Key settings to adjust in `src/`:
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! To get started:
 
@@ -467,7 +467,7 @@ Please ensure your code follows PEP 8 style guidelines and includes appropriate 
 
 ---
 
-## 🔮 Future Work
+##  Future Work
 
 - [ ] Sub-district (upazila-level) spatial granularity
 - [ ] Real-time DGHS + operational weather feed integration
@@ -477,23 +477,17 @@ Please ensure your code follows PEP 8 style guidelines and includes appropriate 
 
 ---
 
-## 📜 License
+##  License
 
 This project is released under the [MIT License](LICENSE).
 
 ---
 
-## 👤 Author
+##  Author
 
 **Ashikur Rahman Ashik**
 B.Sc. Thesis · Faculty of Computer Science and Engineering
 Patuakhali Science and Technology University (PSTU), Bangladesh · 2026
 
-<div align="center">
 
----
-
-<sub>Built with ❤️ · LightGBM · SHAP · Open-Meteo · ERA5</sub>
-
-</div>
 
